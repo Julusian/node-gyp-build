@@ -10,8 +10,13 @@ var targetMismatch = (process.env.npm_config_platform && process.platform !== pr
 if (!buildFromSource()) {
   if (targetMismatch) {
     // If the target is mismatched, then we can't test prebuilds.
-    // Instead, we just check whether a matching prebuild exists, and fail if it doesn't.
-    require('./index').path()
+    // Instead, we just check whether a matching prebuild exists, and attempt to build if it doesn't.
+    try {
+      require('./index').path()
+    } catch (e) {
+        if (verbose()) console.error(e)
+      preinstall()
+    }
   } else {
     proc.exec('node-gyp-build-test', function (err, stdout, stderr) {
       if (err) {
